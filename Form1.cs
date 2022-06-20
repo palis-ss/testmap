@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Windows.Forms;
+using System.Diagnostics;
 using AxMapWinGIS;
 using MapWinGIS;
 
@@ -8,7 +9,7 @@ namespace testmap
 {
     public partial class Form1 : Form
     {
-        private AxMapWinGIS.AxMap map;
+        private AxMap map;
 
         public Form1()
         {
@@ -24,10 +25,24 @@ namespace testmap
             map.Size = panel1.Size;
             panel1.Controls.Add(map);
 
-            map.CursorMode = MapWinGIS.tkCursorMode.cmPan;
-            map.Projection = MapWinGIS.tkMapProjection.PROJECTION_GOOGLE_MERCATOR;
-            map.TileProvider = MapWinGIS.tkTileProvider.OpenStreetMap;
-            map.KnownExtents = tkKnownExtents.keThailand;            
+            
+            TileProviders providers = map.Tiles.Providers;
+            int providerId = (int)tkTileProvider.ProviderCustom + 10;            
+            bool ret = providers.Add(providerId, "MapTilerOutdoor",
+                @"https://api.maptiler.com/maps/topographique/256/{zoom}/{x}/{y}.png?key=ZnCLN1UxbkcF74yFeryt",
+                tkTileProjection.SphericalMercator);
+            /*
+            int error = map.Tiles.LastErrorCode;
+            Debug.WriteLine(ret.ToString() + error.ToString());
+            Debug.WriteLine(map.Tiles.Providers.ErrorMsg[error]);
+            */
+            
+            map.Projection = tkMapProjection.PROJECTION_GOOGLE_MERCATOR;            
+            map.Tiles.ProviderId = providerId;            
+            map.CursorMode = tkCursorMode.cmPan;
+
+            map.KnownExtents = tkKnownExtents.keThailand;
+            map.CurrentZoom = 8;
 
             map.SendMouseDown = true;
             map.MouseDownEvent += map_MouseDown;            
@@ -60,8 +75,8 @@ namespace testmap
             if (e.button == 1)          // left button
             {                                
                 MapWinGIS.Point pnt = new MapWinGIS.Point();
-                int handle = map.NewDrawing(tkDrawReferenceList.dlSpatiallyReferencedList);
-                
+                int handle = map.NewDrawing(tkDrawReferenceList.dlSpatiallyReferencedList);                
+
                 double x = 0.0;
                 double y = 0.0;
                 map.PixelToProj(e.x, e.y, ref x, ref y);
