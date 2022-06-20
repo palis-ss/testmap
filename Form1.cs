@@ -18,18 +18,16 @@ namespace testmap
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            panel1.Size = new Size(this.ClientSize.Width - 20, this.ClientSize.Height - 100);
+            panel1.Size = new Size(ClientSize.Width - 20, ClientSize.Height - 100);
 
-            this.map.Location = new System.Drawing.Point(0, 0);
-            //this.map.Size = new System.Drawing.Size(1024, 768);
+            map.Location = new System.Drawing.Point(0, 0);            
             map.Size = panel1.Size;
             panel1.Controls.Add(map);
 
             map.CursorMode = MapWinGIS.tkCursorMode.cmPan;
             map.Projection = MapWinGIS.tkMapProjection.PROJECTION_GOOGLE_MERCATOR;
-            map.TileProvider = MapWinGIS.tkTileProvider.OpenHumanitarianMap;
-            map.SetLatitudeLongitude(13, 100);            
-            map.ZoomToTileLevel(8);
+            map.TileProvider = MapWinGIS.tkTileProvider.OpenStreetMap;
+            map.KnownExtents = tkKnownExtents.keThailand;            
 
             map.SendMouseDown = true;
             map.MouseDownEvent += map_MouseDown;            
@@ -39,7 +37,8 @@ namespace testmap
         {
             Control control = (Control)sender;
             panel1.Size = new Size(control.ClientSize.Width-20, control.ClientSize.Height-100);
-            map.Size = panel1.Size;
+            if(map != null)
+                map.Size = panel1.Size;
         }
 
         private void button1_Click(object sender, EventArgs e)
