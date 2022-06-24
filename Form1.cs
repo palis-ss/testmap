@@ -4,12 +4,14 @@ using System.Windows.Forms;
 using System.Diagnostics;
 using AxMapWinGIS;
 using MapWinGIS;
+using Image = MapWinGIS.Image;
 
 namespace testmap
 {
     public partial class Form1 : Form
     {
         private AxMap map;
+        int MarkerLayer = -1;
 
         public Form1()
         {
@@ -21,13 +23,13 @@ namespace testmap
         {
             panel1.Size = new Size(ClientSize.Width - 20, ClientSize.Height - 100);
 
-            map.Location = new System.Drawing.Point(0, 0);            
+            map.Location = new System.Drawing.Point(0, 0);
             map.Size = panel1.Size;
             panel1.Controls.Add(map);
 
-            
+
             TileProviders providers = map.Tiles.Providers;
-            int providerId = (int)tkTileProvider.ProviderCustom + 10;            
+            int providerId = (int)tkTileProvider.ProviderCustom + 10;
             bool ret = providers.Add(providerId, "MapTilerOutdoor",
                 @"https://api.maptiler.com/maps/topographique/256/{zoom}/{x}/{y}.png?key=ZnCLN1UxbkcF74yFeryt",
                 tkTileProjection.SphericalMercator);
@@ -36,23 +38,25 @@ namespace testmap
             Debug.WriteLine(ret.ToString() + error.ToString());
             Debug.WriteLine(map.Tiles.Providers.ErrorMsg[error]);
             */
-            
-            map.Projection = tkMapProjection.PROJECTION_GOOGLE_MERCATOR;            
-            map.Tiles.ProviderId = providerId;            
+
+            map.Projection = tkMapProjection.PROJECTION_GOOGLE_MERCATOR;
+            map.Tiles.ProviderId = providerId;
             map.CursorMode = tkCursorMode.cmPan;
 
             map.KnownExtents = tkKnownExtents.keThailand;
             map.CurrentZoom = 8;
 
             map.SendMouseDown = true;
-            map.MouseDownEvent += map_MouseDown;            
+            map.MouseDownEvent += map_MouseDown;
+
+            InitLayers();
         }
 
         private void Form1_Resize(object sender, EventArgs e)
         {
             Control control = (Control)sender;
-            panel1.Size = new Size(control.ClientSize.Width-20, control.ClientSize.Height-100);
-            if(map != null)
+            panel1.Size = new Size(control.ClientSize.Width - 20, control.ClientSize.Height - 100);
+            if (map != null)
                 map.Size = panel1.Size;
         }
 
@@ -73,9 +77,13 @@ namespace testmap
         public void map_MouseDown(object sender, _DMapEvents_MouseDownEvent e)
         {
             if (e.button == 1)          // left button
-            {                                
+            {
+                Shapefile sf = map.get_Shapefile(MarkerLayer);
+                Shape shp = new Shape();
+                shp.Create(ShpfileType.SHP_POINT);
+
                 MapWinGIS.Point pnt = new MapWinGIS.Point();
-                int handle = map.NewDrawing(tkDrawReferenceList.dlSpatiallyReferencedList);                
+                //int handle = map.NewDrawing(tkDrawReferenceList.dlSpatiallyReferencedList);
 
                 double x = 0.0;
                 double y = 0.0;
@@ -83,9 +91,36 @@ namespace testmap
                 pnt.x = x;
                 pnt.y = y;
                 
-                map.DrawCircleEx(handle, pnt.x, pnt.y, 5.0, 255, true);
-                map.Redraw2(tkRedrawType.RedrawMinimal);
+                shp.AddPoint(x, y);
+                sf.EditAddShape(shp);
+                
+                //int handle = map.NewDrawing(tkDrawReferenceList.dlSpatiallyReferencedList);
+                //map.DrawCircleEx(handle, pnt.x, pnt.y, 5.0, 255, true);
+
+                //map.Redraw2(tkRedrawType.RedrawMinimal);                
+                map.Redraw();
             }
+        }
+
+        // map layers
+        // 1) base map
+        // 2) markers
+        // 3) tracking
+        public void InitLayers()
+        {
+            string _iconPath = Path.GetDirectoryName(Application.ExecutablePath) + @"\..\..\..\icons\";
+
+            var sf = new Shapefile();
+            sf.CreateNew("", ShpfileType.SHP_POINT);
+            sf.DefaultDrawingOptions.AlignPictureByBottom = false;
+            
+            var opt = sf.DefaultDrawingOptions;
+            opt.PointType = tkPointSymbolType.ptSymbolPicture;
+            var img = new Image();
+            if(img.Open(@"D:\users\palis\projects\Github\VC\testmap\icons\car-32.png"))
+                opt.Picture = img;
+
+            MarkerLayer = map.AddLayer(sf, true);
         }
     }
 }
