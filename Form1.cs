@@ -12,6 +12,8 @@ namespace testmap
     {
         private AxMap map;
         int MarkerLayer = -1;
+        
+        modes mode;
 
         public Form1()
         {
@@ -21,7 +23,7 @@ namespace testmap
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            panel1.Size = new Size(ClientSize.Width - 20, ClientSize.Height - 100);
+            panel1.Size = new Size(ClientSize.Width - 20, ClientSize.Height - 200);
 
             map.Location = new System.Drawing.Point(0, 0);
             map.Size = panel1.Size;
@@ -33,21 +35,23 @@ namespace testmap
             bool ret = providers.Add(providerId, "MapTilerOutdoor",
                 @"https://api.maptiler.com/maps/topographique/256/{zoom}/{x}/{y}.png?key=ZnCLN1UxbkcF74yFeryt",
                 tkTileProjection.SphericalMercator);
-            /*
-            int error = map.Tiles.LastErrorCode;
-            Debug.WriteLine(ret.ToString() + error.ToString());
-            Debug.WriteLine(map.Tiles.Providers.ErrorMsg[error]);
-            */
 
             map.Projection = tkMapProjection.PROJECTION_GOOGLE_MERCATOR;
-            map.Tiles.ProviderId = providerId;
-            map.CursorMode = tkCursorMode.cmPan;
+            map.Tiles.ProviderId = providerId;            
+            mode = modes.selection;
 
             map.KnownExtents = tkKnownExtents.keThailand;
             map.CurrentZoom = 8;
 
             map.SendMouseDown = true;
-            map.MouseDownEvent += map_MouseDown;
+            map.SendMouseMove = true;
+            map.MouseDownEvent += map_MouseDown;            
+            map.ShapeIdentified += map_ShapeIdentified;
+            map.CursorMode = tkCursorMode.cmNone;
+
+            cbIcon.Items.Add("car");
+            cbIcon.Items.Add("house");
+            cbIcon.SelectedIndex = 0;
 
             InitLayers();
         }
@@ -57,20 +61,67 @@ namespace testmap
             Control control = (Control)sender;
             panel1.Size = new Size(control.ClientSize.Width - 20, control.ClientSize.Height - 100);
             if (map != null)
-                map.Size = panel1.Size;
+                map.Size = panel1.Size;            
+        }
+        private void btnMode_Click(object sender, EventArgs e)
+        {
+            Shapefile sf = map.get_Shapefile(MarkerLayer);
+            switch (mode)
+            {
+                case modes.selection:
+                    // changing to marking
+                    mode = modes.marking;
+                    
+                    lblMode.Text = "Current Mode: Add Marker";                    
+                    sf.StartEditingShapes(true, null);
+                    sf.InteractiveEditing = true;
+                    map.CursorMode = tkCursorMode.cmAddShape;                    
+                    map.ChooseLayer += map_ChooseLayer;
+                    //map.MapCursor = tkCursor.;
+
+                    lblIcon.Visible = true;
+                    cbIcon.Visible = true;
+                    break;
+                case modes.marking:
+                    mode = modes.delete;
+                    lblMode.Text = "Current Mode: Delete Marker";
+                    map.CursorMode = tkCursorMode.cmIdentify;
+                    //map.MapCursor = tkCursor.crsrHand;
+
+                    lblIcon.Visible = false;
+                    cbIcon.Visible = false;
+                    break;
+                case modes.delete:
+                    mode = modes.selection;
+                    sf.StopEditingShapes();
+                    lblMode.Text = "Current Mode: Selection";
+                    map.CursorMode = tkCursorMode.cmNone;
+                    //map.MapCursor = tkCursor.crsrMapDefault;
+
+                    lblIcon.Visible = false;
+                    cbIcon.Visible = false;
+                    break;
+            }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void map_ChooseLayer(object sender, AxMapWinGIS._DMapEvents_ChooseLayerEvent e)
         {
-            if (map.CursorMode == MapWinGIS.tkCursorMode.cmPan)
+            if (map.CursorMode == tkCursorMode.cmAddShape)  // cmMoveShapes, etc
             {
-                map.CursorMode = tkCursorMode.cmNone;
-                button1.Text = "Marking Off";
+                e.layerHandle = MarkerLayer;
             }
-            else
-            {
-                map.CursorMode = tkCursorMode.cmPan;
-                button1.Text = "Marking On";
+        }
+
+        public void map_ShapeIdentified(object sender, _DMapEvents_ShapeIdentifiedEvent e)
+        {
+            if (mode != modes.delete)
+                return;
+
+            Shapefile sf = map.get_Shapefile(MarkerLayer);
+            if (sf != null)
+            {                
+                sf.EditDeleteShape(e.shapeIndex);                
+                map.Redraw();                
             }
         }
 
@@ -78,28 +129,35 @@ namespace testmap
         {
             if (e.button == 1)          // left button
             {
-                Shapefile sf = map.get_Shapefile(MarkerLayer);
-                Shape shp = new Shape();
-                shp.Create(ShpfileType.SHP_POINT);
-
-                MapWinGIS.Point pnt = new MapWinGIS.Point();
-                //int handle = map.NewDrawing(tkDrawReferenceList.dlSpatiallyReferencedList);
-
-                double x = 0.0;
-                double y = 0.0;
-                map.PixelToProj(e.x, e.y, ref x, ref y);
-                pnt.x = x;
-                pnt.y = y;
-                
-                shp.AddPoint(x, y);
-                sf.EditAddShape(shp);
-                
-                //int handle = map.NewDrawing(tkDrawReferenceList.dlSpatiallyReferencedList);
-                //map.DrawCircleEx(handle, pnt.x, pnt.y, 5.0, 255, true);
-
-                //map.Redraw2(tkRedrawType.RedrawMinimal);                
-                map.Redraw();
+                if(mode == modes.marking)
+                    Mark(e.x, e.y, cbIcon.Text);
             }
+        }
+
+        public void Mark(int ex, int ey, string icon)
+        {
+            Shapefile sf = map.get_Shapefile(MarkerLayer);
+            Shape shp = new Shape();
+            shp.Create(ShpfileType.SHP_POINT);
+
+            MapWinGIS.Point pnt = new MapWinGIS.Point();
+            //int handle = map.NewDrawing(tkDrawReferenceList.dlSpatiallyReferencedList);
+
+            double x = 0.0;
+            double y = 0.0;
+            map.PixelToProj(ex, ey, ref x, ref y);
+            pnt.x = x;
+            pnt.y = y;
+
+            shp.AddPoint(x, y);
+            int idx = sf.EditAddShape(shp);
+            sf.ShapeCategory2[idx] = icon;
+
+            //int handle = map.NewDrawing(tkDrawReferenceList.dlSpatiallyReferencedList);
+            //map.DrawCircleEx(handle, pnt.x, pnt.y, 5.0, 255, true);
+
+            //map.Redraw2(tkRedrawType.RedrawMinimal);                
+            map.Redraw();
         }
 
         // map layers
@@ -113,14 +171,31 @@ namespace testmap
             var sf = new Shapefile();
             sf.CreateNew("", ShpfileType.SHP_POINT);
             sf.DefaultDrawingOptions.AlignPictureByBottom = false;
-            
-            var opt = sf.DefaultDrawingOptions;
-            opt.PointType = tkPointSymbolType.ptSymbolPicture;
-            var img = new Image();
-            if(img.Open(@"D:\users\palis\projects\Github\VC\testmap\icons\car-32.png"))
-                opt.Picture = img;
 
+            // loading icons
+            var ct = sf.Categories.Add("car");            
+            ct.DrawingOptions.PointType = tkPointSymbolType.ptSymbolPicture;
+            var img = new Image();
+            if(img.Open(_iconPath+@"car-32.png"))
+                ct.DrawingOptions.Picture = img;
+
+            // loading icons
+            ct = sf.Categories.Add("house");
+            ct.DrawingOptions.PointType = tkPointSymbolType.ptSymbolPicture;
+            img = new Image();
+            if (img.Open(_iconPath + @"house-32.png"))
+                ct.DrawingOptions.Picture = img;
+
+            sf.DefaultDrawingOptions.Visible = false;
             MarkerLayer = map.AddLayer(sf, true);
         }
     }
+
+    enum modes
+    {
+        selection,
+        marking,
+        delete
+    };
+
 }
