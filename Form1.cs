@@ -59,6 +59,7 @@ namespace testmap
             map.ShapeIdentified += Map_ShapeIdentified;
             map.SendMouseDown = true;
             map.MouseDownEvent += Map_MouseDownEvent;
+            map.AfterShapeEdit += Map_AfterShapeEdit;
             map.Focus();
             map.Identifier.IdentifierMode = tkIdentifierMode.imSingleLayer;
 
@@ -70,6 +71,21 @@ namespace testmap
                 cbIcon.SelectedIndex = 0;
 
 
+        }
+
+        private void Map_AfterShapeEdit(object sender, _DMapEvents_AfterShapeEditEvent e)
+        {
+            switch (e.operation)
+            {
+                case tkUndoOperation.uoAddShape:
+                    Shapefile sf = map.get_Shapefile(MarkerLayer);
+                    _fieldIndex = sf.Table.FieldIndexByName["Icon"];
+                    sf.EditCellValue(_fieldIndex, e.shapeIndex, cbIcon.Text);                    
+                    sf.Categories.ApplyExpressions();  // render matching icon
+                    map.Redraw();
+
+                    break;
+            }
         }
 
         private void Map_MouseDownEvent(object sender, _DMapEvents_MouseDownEvent e)
@@ -254,25 +270,32 @@ namespace testmap
 
         public void Map_ShapeIdentified(object sender, _DMapEvents_ShapeIdentifiedEvent e)
         {
+            var shapes = map.IdentifiedShapes;
+            Shapefile sf = map.get_Shapefile(shapes.LayerHandle[0]);
+
             switch (mode)
             {
-                case MapMode.Delete:
-                    var shapes = map.IdentifiedShapes;
-                    if (shapes.Count > 0)
-                    {
-                        Shapefile sf = map.get_Shapefile(shapes.LayerHandle[0]);
-                        var name = sf.CellValue[sf.FieldIndexByName["Name"], shapes.ShapeIndex[0]];                        
-                        sf.EditDeleteShape(shapes.ShapeIndex[0]);
+                case MapMode.Nothing:
+                    double px = 0, py = 0;
+                    map.ProjToPixel(e.pointX, e.pointY, ref px, ref py);
 
-                        for(int i=0; i< sf.Labels.Count; i++)
+                    contextMenuStrip1.Show(map, (int)px, (int)py);
+                    map.IdentifiedShapes.Clear();
+
+                    break;
+                case MapMode.Delete:
+                    var name = sf.CellValue[sf.FieldIndexByName["Name"], shapes.ShapeIndex[0]];
+                    sf.EditDeleteShape(shapes.ShapeIndex[0]);
+
+                    for (int i = 0; i < sf.Labels.Count; i++)
+                    {
+                        if (sf.Labels.Label[i, 0].Text == name as string)
                         {
-                            if(sf.Labels.Label[i,0].Text == name as string)
-                            {
-                                sf.Labels.RemoveLabel(i);
-                            }
+                            sf.Labels.RemoveLabel(i);
                         }
-                        map.Redraw();
-                    }                    
+                    }
+                    map.Redraw();
+
                     break;
             }
         }
@@ -315,8 +338,8 @@ namespace testmap
                     map.IdentifiedShapes.Clear();
                     map.Redraw();
 
-                    map.CursorMode = tkCursorMode.cmNone;
-                    map.MapCursor = tkCursor.crsrCross;
+                    map.CursorMode = tkCursorMode.cmAddShape;
+                    map.MapCursor = tkCursor.crsrMapDefault;
                     mode = MapMode.Add;
                     lblMapMode.Text = "Mode: Add marker";                    
                     break;
@@ -333,8 +356,9 @@ namespace testmap
                     map.IdentifiedShapes.Clear();
                     map.Redraw();
 
-                    map.CursorMode = tkCursorMode.cmIdentify;
+                    //map.CursorMode = tkCursorMode.cmIdentify;
                     map.MapCursor = tkCursor.crsrHelp;
+                    map.CursorMode = tkCursorMode.cmIdentify;   // just to play around
                     /*
                     map.MapCursor = tkCursor.crsrUserDefined;
                     map.UDCursorHandle = Cursors.Help.Handle.ToInt32();
@@ -388,6 +412,11 @@ namespace testmap
                 sf.Categories.ApplyExpressions();
                 map.Redraw();
             }
+        }
+
+        private void editToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Hello");
         }
     }
 }
