@@ -24,10 +24,7 @@ namespace testmap
         int _fieldIndex = -1;
         int _shapeidx = -1;
         double _posx = 0;
-        double _posy = 0;
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
-        private static extern short GetKeyState(int keyCode);
+        double _posy = 0;        
 
         public Form1()
         {
@@ -39,6 +36,7 @@ namespace testmap
         private void Form1_Load(object sender, EventArgs e)
         {
             panel1.Size = new Size(ClientSize.Width - 20, ClientSize.Height - 200);
+            panel1.Location = new System.Drawing.Point(10, 10);
 
             map.Location = new System.Drawing.Point(0, 0);
             map.Size = panel1.Size;
@@ -62,6 +60,7 @@ namespace testmap
             //map.CursorMode = tkCursorMode.cmNone;
             //map.CursorMode = tkCursorMode.cmIdentify;
             map.CursorMode = tkCursorMode.cmEditShape;
+            map.MapCursor = tkCursor.crsrHand;
             //map.MapCursor = tkCursor.crsrHelp;
 
             map.ChooseLayer += Map_ChooseLayer;
@@ -71,7 +70,7 @@ namespace testmap
             map.AfterShapeEdit += Map_AfterShapeEdit;
             map.BeforeShapeEdit += Map_BeforeShapeEdit;
             map.Focus();
-            map.Identifier.IdentifierMode = tkIdentifierMode.imSingleLayer;
+            //map.Identifier.IdentifierMode = tkIdentifierMode.imSingleLayer;
 
             InitLayers();
 
@@ -112,20 +111,22 @@ namespace testmap
                     // adding textbox for label input
                     double ex = 0, ey = 0;
                     map.ProjToPixel(sf.Shape[e.shapeIndex].Center.x, sf.Shape[e.shapeIndex].Center.y, ref ex, ref ey);
-                    txtLabel.Location = new System.Drawing.Point((int)ex - 40, (int)ey + 35);
+                    txtLabel.Location = new System.Drawing.Point(10 + (int)ex - txtLabel.Width / 2, 10 + (int)ey + 17);
                     txtLabel.Text = "[Add Name]";
                     txtLabel.SelectAll();
                     txtLabel.BringToFront();
                     txtLabel.Visible = true;
                     txtLabel.Focus();
                     addinglabel = true;
-
+                    //int layer = map.NewDrawing(tkDrawReferenceList.dlSpatiallyReferencedList);
+                    //map.DrawCircleEx(layer, sf.Shape[e.shapeIndex].Center.x, sf.Shape[e.shapeIndex].Center.y, 32, 0, true);
                     _posx = sf.Shape[e.shapeIndex].Center.x;
                     _posy = sf.Shape[e.shapeIndex].Center.y;
                     _shapeidx = e.shapeIndex;
 
                     mode = MapMode.Edit;
                     map.CursorMode = tkCursorMode.cmEditShape;
+                    map.MapCursor = tkCursor.crsrHand;                    
                     lblMapMode.Text = "Mode: Edit marker";
                     lblInfo.Text = EDIT_INFOTXT;
                     break;
@@ -244,6 +245,8 @@ namespace testmap
             {
                 _fieldIndex = sf.Table.FieldIndexByName["ShowLabel"];
                 sf.EditCellValue(_fieldIndex, _shapeidx, false);
+
+                sf.Labels.AddLabel("", x, y);
             }
             else
             {
@@ -291,7 +294,7 @@ namespace testmap
             map.Redraw();
 
             // adding textbox for label input
-            txtLabel.Location = new System.Drawing.Point(ex, ey + 35);
+            txtLabel.Location = new System.Drawing.Point((int)ex - txtLabel.Width / 2, (int)ey + txtLabel.Height);
             txtLabel.Text = "[Add Name]";
             txtLabel.SelectAll();
             txtLabel.BringToFront();
@@ -329,7 +332,7 @@ namespace testmap
 
             loadicons();
             sf.DefaultDrawingOptions.Visible = true;
-            sf.InteractiveEditing = true;            
+            sf.InteractiveEditing = true;
             //sf.Labels.Synchronized = true;
         }
 
@@ -359,40 +362,6 @@ namespace testmap
             labels.OffsetY = 16;
         }
 
-        public void Map_ShapeIdentified(object sender, _DMapEvents_ShapeIdentifiedEvent e)
-        {
-            var shapes = map.IdentifiedShapes;
-            Shapefile sf = map.get_Shapefile(shapes.LayerHandle[0]);
-
-            switch (mode)
-            {
-                case MapMode.Edit:
-                    double px = 0, py = 0;
-                    map.ProjToPixel(e.pointX, e.pointY, ref px, ref py);
-
-                    contextMenuStrip1.Show(map, (int)px, (int)py);
-                    map.IdentifiedShapes.Clear();
-
-                    break;
-                    /*
-                case MapMode.Delete:
-                    var name = sf.CellValue[sf.FieldIndexByName["Name"], shapes.ShapeIndex[0]];
-                    sf.EditDeleteShape(shapes.ShapeIndex[0]);
-
-                    for (int i = 0; i < sf.Labels.Count; i++)
-                    {
-                        if (sf.Labels.Label[i, 0].Text == name as string)
-                        {
-                            sf.Labels.RemoveLabel(i);
-                        }
-                    }
-                    map.Redraw();
-
-                    break;
-                    */
-            }
-        }
-
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             if (addinglabel || renaminglabel)
@@ -401,55 +370,92 @@ namespace testmap
                 string label = "";
                 bool showlabel = false;
 
-                if (keyData == Keys.Escape || keyData == Keys.Enter)
+                if (addinglabel)
                 {
                     if (keyData == Keys.Escape)
                     {
-                        label = "";
+                        label = "-";
                         showlabel = false;
                     }
-                    else
+                    else if (keyData == Keys.Enter)
                     {
                         label = txtLabel.Text;
                         showlabel = true;
                     }
 
-                    _fieldIndex = sf.Table.FieldIndexByName["Name"];
-                    sf.EditCellValue(_fieldIndex, _shapeidx, label);
-                    _fieldIndex = sf.Table.FieldIndexByName["ShowLabel"];
-                    sf.EditCellValue(_fieldIndex, _shapeidx, showlabel);
-                    txtLabel.Visible = false;
+                    if (keyData == Keys.Escape || keyData == Keys.Enter)
+                    {
+                        // update table
+                        _fieldIndex = sf.Table.FieldIndexByName["Name"];
+                        sf.EditCellValue(_fieldIndex, _shapeidx, label);
+                        _fieldIndex = sf.Table.FieldIndexByName["ShowLabel"];
+                        sf.EditCellValue(_fieldIndex, _shapeidx, showlabel);
 
-                    if (addinglabel)
+                        // update UI
+                        if (!showlabel)
+                            label = "";
                         sf.Labels.InsertLabel(_shapeidx, label, _posx, _posy);
-                    if (renaminglabel)
-                        sf.Labels.Label[_shapeidx, 0].Text = label;
-                    sf.Labels.Label[_shapeidx, 0].Visible = showlabel;
+                        sf.Labels.Label[_shapeidx, 0].Visible = showlabel;
 
-                    map.ShapeEditor.SaveChanges();
-                    map.Redraw();
+                        map.ShapeEditor.SaveChanges();
+                        map.Redraw();
 
-                    addinglabel = false;
-                    renaminglabel = false;
-                    return true;
+                        txtLabel.Visible = false;
+                        addinglabel = false;
+                        return true;
+                    }
                 }
+                else if (renaminglabel)
+                {
+                    // we change text only if the user accepts the change
+                    // we are not changing label visibility here
+                    if (keyData == Keys.Enter)
+                    {
+                        label = txtLabel.Text;
+                        if (string.IsNullOrEmpty(label))
+                            label = "-";
 
+                        // update table
+                        _fieldIndex = sf.Table.FieldIndexByName["Name"];
+                        sf.EditCellValue(_fieldIndex, _shapeidx, label);
+                    }
+
+                    if (keyData == Keys.Escape || keyData == Keys.Enter)
+                    {
+                        // update UI
+                        _fieldIndex = sf.Table.FieldIndexByName["ShowLabel"];
+                        showlabel = (bool)sf.CellValue[_fieldIndex, _shapeidx];
+                        if (showlabel)
+                        {
+                            _fieldIndex = sf.Table.FieldIndexByName["Name"];
+                            label = sf.CellValue[_fieldIndex, _shapeidx].ToString();
+                            sf.Labels.Label[_shapeidx, 0].Text = label;
+                        }
+
+                        map.ShapeEditor.SaveChanges();
+                        map.Redraw();
+
+                        txtLabel.Visible = false;
+                        renaminglabel = false;
+                        return true;
+                    }
+                }
                 return base.ProcessCmdKey(ref msg, keyData);
             }
 
             switch (keyData)
             {
-                case Keys.A:
+                case Keys.Insert:
                     map.IdentifiedShapes.Clear();
                     map.Redraw();
 
                     map.CursorMode = tkCursorMode.cmAddShape;
-                    map.MapCursor = tkCursor.crsrMapDefault;
+                    //map.MapCursor = tkCursor.crsrMapDefault;
+                    map.MapCursor = tkCursor.crsrCross;
                     mode = MapMode.Add;
                     lblMapMode.Text = "Mode: Add marker";
                     lblInfo.Text = ADD_INFOTXT;
-                    break;
-                case Keys.E:
+                    break;                
                 case Keys.Escape:
                     map.IdentifiedShapes.Clear();
                     map.Redraw();
@@ -457,6 +463,7 @@ namespace testmap
                     //map.CursorMode = tkCursorMode.cmIdentify;
                     //map.MapCursor = tkCursor.crsrHelp;
                     map.CursorMode = tkCursorMode.cmEditShape;   // just to play around
+                    map.MapCursor = tkCursor.crsrHand;
                     /*
                     map.MapCursor = tkCursor.crsrUserDefined;
                     map.UDCursorHandle = Cursors.Help.Handle.ToInt32();
@@ -521,12 +528,12 @@ namespace testmap
                 label.Left = 15;
                 label.Top = i * 30 + 5;
                 label.Text = sf.Field[i].Name;
-                label.Width = 60;
+                label.Width = 80;
                 form.Controls.Add(label);
 
                 TextBox box = new TextBox();
                 box.ReadOnly = true;
-                box.Left = 80;
+                box.Left = 120;
                 box.Top = label.Top;
                 box.Width = 100;
                 box.TabStop = false;
@@ -553,11 +560,12 @@ namespace testmap
             Shapefile sf = map.get_Shapefile(MarkerLayer);
 
             sf.Labels.Label[_shapeidx, 0].Visible = false;
+            sf.Labels.Label[_shapeidx, 0].Text = "";
             map.Redraw();
-
+            
             double ex = 0, ey = 0;
             map.ProjToPixel(sf.Shape[_shapeidx].Center.x, sf.Shape[_shapeidx].Center.y, ref ex, ref ey);
-            txtLabel.Location = new System.Drawing.Point((int)ex - 40, (int)ey + 35);
+            txtLabel.Location = new System.Drawing.Point(10 + (int)ex - txtLabel.Width / 2, 10 + (int)ey + 17);  // 17 is adjusted based on map's label position
             txtLabel.Text = sf.CellValue[0, _shapeidx].ToString();
             txtLabel.SelectAll();
             txtLabel.BringToFront();
@@ -584,22 +592,26 @@ namespace testmap
         {
             var sf = map.get_Shapefile(MarkerLayer);
 
-            ToolStripMenuItem m = sender as ToolStripMenuItem;
+            ToolStripMenuItem? m = sender as ToolStripMenuItem;
+            if (m == null)
+                return;
+
             if (m.Text == "Hide Label")
             {
                 _fieldIndex = sf.Table.FieldIndexByName["ShowLabel"];
                 sf.EditCellValue(_fieldIndex, _shapeidx, false);
+                sf.Labels.Label[_shapeidx, 0].Text = "";
                 sf.Labels.Label[_shapeidx, 0].Visible = false;
-                
             }
-            else if(m.Text == "Show Label")
+            else if (m.Text == "Show Label")
             {
                 _fieldIndex = sf.Table.FieldIndexByName["ShowLabel"];
                 sf.EditCellValue(_fieldIndex, _shapeidx, true);
+                _fieldIndex = sf.Table.FieldIndexByName["Name"];
+                sf.Labels.Label[_shapeidx, 0].Text = sf.CellValue[_fieldIndex, _shapeidx].ToString();
                 sf.Labels.Label[_shapeidx, 0].Visible = true;
             }
             map.Redraw();
-
         }
     }
 }
