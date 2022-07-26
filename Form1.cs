@@ -12,11 +12,15 @@ namespace testmap
     public partial class Form1 : Form
     {
         #region Constants
-        const string EDIT_INFOTXT = @"Click a marker, then
-- Del to delete
+        const string EDIT_INFOTXT = @"Click a marker to start editing, then
+- DEL to delete
 - Click and drag to move.
+- Right click for more options.
 - Click anywhere else to finish";
-        const string ADD_INFOTXT = @"Click a location to add";
+        const string ADD_INFOTXT = @"Click a location on map to add, or push this button ->
+ESC to go back to Edit mode";
+        const string PAN_INFOTXT = @"Click and drag to pan
+ESC to go back to Edit mode";
         const string TILENAME = @"MapTilerOutdoor";
         const string TILEURL = @"https://api.maptiler.com/maps/topographique/256/{zoom}/{x}/{y}.png?key=ZnCLN1UxbkcF74yFeryt";
         #endregion
@@ -37,6 +41,8 @@ namespace testmap
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            this.Size = new Size(1280, 960);
+            this.CenterToScreen();
             panel1.Size = new Size(ClientSize.Width - 20, ClientSize.Height - 200);
             panel1.Location = new System.Drawing.Point(10, 10);
 
@@ -47,12 +53,7 @@ namespace testmap
             InitMap();
             InitLayers();
 
-            cbIcon.Items.Add("car");
-            cbIcon.Items.Add("house");
-            if (cbIcon.Items.Count > 0)
-                cbIcon.SelectedIndex = 0;
-
-            lblMapMode.Text = "Mode: Edit marker";
+            lblMapMode.Text = "Mode: Edit markers";
             lblInfo.Text = EDIT_INFOTXT;
 
             // these need to be setup 1 time only
@@ -85,7 +86,7 @@ namespace testmap
             map.ShapeEditor.IndicesVisible = false;
             map.CursorMode = tkCursorMode.cmEditShape;
             map.MapCursor = tkCursor.crsrHand;
-
+            btnAddMarker.Visible = false;
 
             map.SendMouseDown = true;
             map.Focus();
@@ -192,13 +193,20 @@ namespace testmap
                     {
                         sf.Labels.InsertLabel(e.shapeIndex, dlg.PosName, projx, projy);
                         UpdateMarker(e.shapeIndex, dlg.PosName, dlg.PosLat, dlg.PosLon, dlg.PosHeight, dlg.PosIcon, dlg.ShowLabel);
-                    }
 
-                    map.ShapeEditor.SaveChanges();
-                    map.CursorMode = tkCursorMode.cmEditShape;
-                    map.MapCursor = tkCursor.crsrHand;
-                    lblMapMode.Text = "Mode: Edit marker";
-                    lblInfo.Text = EDIT_INFOTXT;
+                        map.ShapeEditor.SaveChanges();
+                        map.CursorMode = tkCursorMode.cmEditShape;
+                        map.MapCursor = tkCursor.crsrHand;
+                        lblMapMode.Text = "Mode: Edit markers";
+                        lblInfo.Text = EDIT_INFOTXT;
+                        btnAddMarker.Visible = false;
+                    }
+                    else
+                    {
+                        sf.EditDeleteShape(e.shapeIndex);
+                        map.ShapeEditor.SaveChanges();
+                    }
+                    
                     break;
                 case tkUndoOperation.uoRemoveShape:
                     // removing associated label
@@ -270,6 +278,12 @@ namespace testmap
                 sf.Labels.InsertLabel(shapeidx, dlg.PosName, projx, projy);
 
                 UpdateMarker(shapeidx, dlg.PosName, dlg.PosLat, dlg.PosLon, dlg.PosHeight, dlg.PosIcon, dlg.ShowLabel);
+
+                map.CursorMode = tkCursorMode.cmEditShape;
+                map.MapCursor = tkCursor.crsrHand;
+                lblMapMode.Text = "Mode: Edit markers";
+                lblInfo.Text = EDIT_INFOTXT;
+                btnAddMarker.Visible = false;
             }
         }
 
@@ -320,11 +334,13 @@ namespace testmap
                     map.IdentifiedShapes.Clear();
                     map.Redraw();
 
+                    map.MapCursor = tkCursor.crsrCross;
                     map.CursorMode = tkCursorMode.cmAddShape;
                     //map.MapCursor = tkCursor.crsrMapDefault;
-                    map.MapCursor = tkCursor.crsrCross;
-                    lblMapMode.Text = "Mode: Add marker";
+
+                    lblMapMode.Text = "Adding a marker";
                     lblInfo.Text = ADD_INFOTXT;
+                    btnAddMarker.Visible = true;
                     break;
                 case Keys.Escape:
                     map.IdentifiedShapes.Clear();
@@ -332,14 +348,22 @@ namespace testmap
 
                     //map.CursorMode = tkCursorMode.cmIdentify;
                     //map.MapCursor = tkCursor.crsrHelp;
-                    map.CursorMode = tkCursorMode.cmEditShape;   // just to play around
                     map.MapCursor = tkCursor.crsrHand;
+                    map.CursorMode = tkCursorMode.cmEditShape;   // just to play around                    
                     /*
                     map.MapCursor = tkCursor.crsrUserDefined;
                     map.UDCursorHandle = Cursors.Help.Handle.ToInt32();
                     */
-                    lblMapMode.Text = "Mode: Edit marker";
+                    lblMapMode.Text = "Mode: Edit markers";
                     lblInfo.Text = EDIT_INFOTXT;
+                    btnAddMarker.Visible = false;
+                    break;
+                case Keys.F8:
+                    map.MapCursor = tkCursor.crsrMapDefault;
+                    map.CursorMode = tkCursorMode.cmPan;
+                    lblMapMode.Text = "Mode: Pan map";
+                    lblInfo.Text = PAN_INFOTXT;
+                    btnAddMarker.Visible = false;
                     break;
                 default:
                     return base.ProcessCmdKey(ref msg, keyData);

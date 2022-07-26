@@ -45,57 +45,64 @@
             // 
             // txtAddLat
             // 
-            this.txtAddLat.Location = new System.Drawing.Point(277, 105);
+            this.txtAddLat.Location = new System.Drawing.Point(194, 63);
+            this.txtAddLat.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.txtAddLat.Name = "txtAddLat";
-            this.txtAddLat.Size = new System.Drawing.Size(150, 31);
+            this.txtAddLat.Size = new System.Drawing.Size(106, 23);
             this.txtAddLat.TabIndex = 1;
             // 
             // txtAddLon
             // 
-            this.txtAddLon.Location = new System.Drawing.Point(277, 163);
+            this.txtAddLon.Location = new System.Drawing.Point(194, 98);
+            this.txtAddLon.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.txtAddLon.Name = "txtAddLon";
-            this.txtAddLon.Size = new System.Drawing.Size(150, 31);
+            this.txtAddLon.Size = new System.Drawing.Size(106, 23);
             this.txtAddLon.TabIndex = 2;
             // 
             // txtAddHeight
             // 
-            this.txtAddHeight.Location = new System.Drawing.Point(277, 226);
+            this.txtAddHeight.Location = new System.Drawing.Point(194, 136);
+            this.txtAddHeight.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.txtAddHeight.Name = "txtAddHeight";
-            this.txtAddHeight.Size = new System.Drawing.Size(150, 31);
+            this.txtAddHeight.Size = new System.Drawing.Size(106, 23);
             this.txtAddHeight.TabIndex = 3;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(114, 108);
+            this.label1.Location = new System.Drawing.Point(80, 65);
+            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(75, 25);
+            this.label1.Size = new System.Drawing.Size(50, 15);
             this.label1.TabIndex = 7;
             this.label1.Text = "Latitude";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(114, 166);
+            this.label2.Location = new System.Drawing.Point(80, 100);
+            this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(87, 25);
+            this.label2.Size = new System.Drawing.Size(58, 15);
             this.label2.TabIndex = 8;
             this.label2.Text = "Lontitude";
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(114, 229);
+            this.label3.Location = new System.Drawing.Point(80, 137);
+            this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(65, 25);
+            this.label3.Size = new System.Drawing.Size(43, 15);
             this.label3.TabIndex = 9;
             this.label3.Text = "Height";
             // 
             // btnAddAccept
             // 
-            this.btnAddAccept.Location = new System.Drawing.Point(246, 343);
+            this.btnAddAccept.Location = new System.Drawing.Point(172, 206);
+            this.btnAddAccept.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.btnAddAccept.Name = "btnAddAccept";
-            this.btnAddAccept.Size = new System.Drawing.Size(112, 34);
+            this.btnAddAccept.Size = new System.Drawing.Size(78, 20);
             this.btnAddAccept.TabIndex = 6;
             this.btnAddAccept.Text = "Accept";
             this.btnAddAccept.UseVisualStyleBackColor = true;
@@ -103,26 +110,29 @@
             // 
             // btnAddCancel
             // 
-            this.btnAddCancel.Location = new System.Drawing.Point(432, 343);
+            this.btnAddCancel.Location = new System.Drawing.Point(302, 206);
+            this.btnAddCancel.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.btnAddCancel.Name = "btnAddCancel";
-            this.btnAddCancel.Size = new System.Drawing.Size(112, 34);
+            this.btnAddCancel.Size = new System.Drawing.Size(78, 20);
             this.btnAddCancel.TabIndex = 7;
             this.btnAddCancel.Text = "Cancel";
             this.btnAddCancel.UseVisualStyleBackColor = true;
             // 
             // txtName
             // 
-            this.txtName.Location = new System.Drawing.Point(277, 44);
+            this.txtName.Location = new System.Drawing.Point(194, 26);
+            this.txtName.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.txtName.Name = "txtName";
-            this.txtName.Size = new System.Drawing.Size(150, 31);
+            this.txtName.Size = new System.Drawing.Size(106, 23);
             this.txtName.TabIndex = 0;
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(114, 47);
+            this.label4.Location = new System.Drawing.Point(80, 28);
+            this.label4.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(59, 25);
+            this.label4.Size = new System.Drawing.Size(39, 15);
             this.label4.TabIndex = 6;
             this.label4.Text = "Name";
             // 
@@ -131,9 +141,10 @@
             this.chkShowLabel.AutoSize = true;
             this.chkShowLabel.Checked = true;
             this.chkShowLabel.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkShowLabel.Location = new System.Drawing.Point(532, 47);
+            this.chkShowLabel.Location = new System.Drawing.Point(372, 28);
+            this.chkShowLabel.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.chkShowLabel.Name = "chkShowLabel";
-            this.chkShowLabel.Size = new System.Drawing.Size(150, 29);
+            this.chkShowLabel.Size = new System.Drawing.Size(100, 19);
             this.chkShowLabel.TabIndex = 4;
             this.chkShowLabel.Text = "Show as Label";
             this.chkShowLabel.UseVisualStyleBackColor = true;
@@ -142,25 +153,27 @@
             // 
             this.cbIcon2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbIcon2.FormattingEnabled = true;
-            this.cbIcon2.Location = new System.Drawing.Point(521, 148);
+            this.cbIcon2.Location = new System.Drawing.Point(365, 89);
+            this.cbIcon2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.cbIcon2.Name = "cbIcon2";
-            this.cbIcon2.Size = new System.Drawing.Size(182, 33);
+            this.cbIcon2.Size = new System.Drawing.Size(129, 23);
             this.cbIcon2.TabIndex = 5;
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(576, 120);
+            this.label5.Location = new System.Drawing.Point(403, 72);
+            this.label5.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(46, 25);
+            this.label5.Size = new System.Drawing.Size(30, 15);
             this.label5.TabIndex = 12;
             this.label5.Text = "Icon";
             // 
             // AddMarker
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(778, 444);
+            this.ClientSize = new System.Drawing.Size(545, 266);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.cbIcon2);
             this.Controls.Add(this.chkShowLabel);
@@ -174,8 +187,9 @@
             this.Controls.Add(this.txtAddHeight);
             this.Controls.Add(this.txtAddLon);
             this.Controls.Add(this.txtAddLat);
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "AddMarker";
-            this.Text = "AddMarker";
+            this.Text = "Marker properties";
             this.ResumeLayout(false);
             this.PerformLayout();
 
