@@ -43,7 +43,7 @@ ESC to go back to Edit mode";
         {
             this.Size = new Size(1280, 960);
             this.CenterToScreen();
-            panel1.Size = new Size(ClientSize.Width - 20, ClientSize.Height - 200);
+            panel1.Size = new Size(ClientSize.Width - 20, ClientSize.Height - 210);
             panel1.Location = new System.Drawing.Point(10, 10);
 
             map.Location = new System.Drawing.Point(0, 0);
@@ -155,7 +155,7 @@ ESC to go back to Edit mode";
         private void Form1_Resize(object sender, EventArgs e)
         {
             Control control = (Control)sender;
-            panel1.Size = new Size(control.ClientSize.Width - 20, control.ClientSize.Height - 200);
+            panel1.Size = new Size(control.ClientSize.Width - 20, control.ClientSize.Height - 210);
             if (map != null)
                 map.Size = panel1.Size;
         }

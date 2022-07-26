@@ -44,10 +44,9 @@
             // btnAddMarker
             // 
             this.btnAddMarker.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnAddMarker.Location = new System.Drawing.Point(333, 448);
-            this.btnAddMarker.Margin = new System.Windows.Forms.Padding(2);
+            this.btnAddMarker.Location = new System.Drawing.Point(495, 741);
             this.btnAddMarker.Name = "btnAddMarker";
-            this.btnAddMarker.Size = new System.Drawing.Size(102, 34);
+            this.btnAddMarker.Size = new System.Drawing.Size(146, 57);
             this.btnAddMarker.TabIndex = 0;
             this.btnAddMarker.Text = "Add Marker";
             this.btnAddMarker.UseVisualStyleBackColor = true;
@@ -57,41 +56,39 @@
             // panel1
             // 
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel1.Location = new System.Drawing.Point(10, 10);
+            this.panel1.Location = new System.Drawing.Point(14, 17);
+            this.panel1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(762, 372);
+            this.panel1.Size = new System.Drawing.Size(1088, 619);
             this.panel1.TabIndex = 1;
             // 
             // lblInfo
             // 
             this.lblInfo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lblInfo.AutoSize = true;
-            this.lblInfo.Location = new System.Drawing.Point(30, 458);
-            this.lblInfo.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblInfo.Location = new System.Drawing.Point(41, 757);
             this.lblInfo.Name = "lblInfo";
-            this.lblInfo.Size = new System.Drawing.Size(12, 15);
+            this.lblInfo.Size = new System.Drawing.Size(22, 125);
             this.lblInfo.TabIndex = 4;
-            this.lblInfo.Text = "-";
+            this.lblInfo.Text = "1\r\n2\r\n3\r\n4\r\n5";
             // 
             // lblMapMode
             // 
             this.lblMapMode.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lblMapMode.AutoSize = true;
             this.lblMapMode.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.lblMapMode.Location = new System.Drawing.Point(30, 434);
-            this.lblMapMode.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblMapMode.Location = new System.Drawing.Point(41, 717);
             this.lblMapMode.Name = "lblMapMode";
-            this.lblMapMode.Size = new System.Drawing.Size(115, 15);
+            this.lblMapMode.Size = new System.Drawing.Size(177, 25);
             this.lblMapMode.TabIndex = 5;
             this.lblMapMode.Text = "Mode: Edit markers";
             // 
             // btnSave
             // 
             this.btnSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSave.Location = new System.Drawing.Point(677, 510);
-            this.btnSave.Margin = new System.Windows.Forms.Padding(2);
+            this.btnSave.Location = new System.Drawing.Point(1105, 819);
             this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(78, 20);
+            this.btnSave.Size = new System.Drawing.Size(111, 33);
             this.btnSave.TabIndex = 6;
             this.btnSave.Text = "Save .SHP";
             this.btnSave.UseVisualStyleBackColor = true;
@@ -100,10 +97,9 @@
             // btnOpen
             // 
             this.btnOpen.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOpen.Location = new System.Drawing.Point(677, 483);
-            this.btnOpen.Margin = new System.Windows.Forms.Padding(2);
+            this.btnOpen.Location = new System.Drawing.Point(1105, 774);
             this.btnOpen.Name = "btnOpen";
-            this.btnOpen.Size = new System.Drawing.Size(78, 20);
+            this.btnOpen.Size = new System.Drawing.Size(111, 33);
             this.btnOpen.TabIndex = 7;
             this.btnOpen.Text = "Open .SHP";
             this.btnOpen.UseVisualStyleBackColor = true;
@@ -116,28 +112,28 @@
             this.deleteToolStripMenuItem,
             this.attributeToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(122, 48);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(155, 68);
             this.contextMenuStrip1.Closed += new System.Windows.Forms.ToolStripDropDownClosedEventHandler(this.contextMenuStrip1_Closed);
             // 
             // deleteToolStripMenuItem
             // 
             this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(121, 22);
+            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(154, 32);
             this.deleteToolStripMenuItem.Text = "Delete";
             this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
             // 
             // attributeToolStripMenuItem
             // 
             this.attributeToolStripMenuItem.Name = "attributeToolStripMenuItem";
-            this.attributeToolStripMenuItem.Size = new System.Drawing.Size(121, 22);
+            this.attributeToolStripMenuItem.Size = new System.Drawing.Size(154, 32);
             this.attributeToolStripMenuItem.Text = "Attribute";
             this.attributeToolStripMenuItem.Click += new System.EventHandler(this.attributeToolStripMenuItem_Click);
             // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(784, 561);
+            this.ClientSize = new System.Drawing.Size(1258, 904);
             this.Controls.Add(this.btnOpen);
             this.Controls.Add(this.btnSave);
             this.Controls.Add(this.lblMapMode);
@@ -145,7 +141,6 @@
             this.Controls.Add(this.btnAddMarker);
             this.Controls.Add(this.panel1);
             this.KeyPreview = true;
-            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "Form1";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);
