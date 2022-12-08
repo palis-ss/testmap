@@ -6,11 +6,15 @@ using System.Windows.Input;
 using System.Runtime.InteropServices;
 using AxMapWinGIS;
 using MapWinGIS;
+using System.IO.Ports;
+using System.Threading;
+using Geo.Gps.Serialization;
+using Geo.Gps;
 
 namespace testmap
 {
     public partial class Form1 : Form
-    {
+    {        
         #region Constants
         const string EDIT_INFOTXT = @"Click a marker to start editing, then
 - DEL to delete
@@ -23,6 +27,8 @@ ESC to go back to Edit mode";
 ESC to go back to Edit mode";
         const string TILENAME = @"MapTilerOutdoor";
         const string TILEURL = @"https://api.maptiler.com/maps/topographique/256/{zoom}/{x}/{y}.png?key=ZnCLN1UxbkcF74yFeryt";
+        //const string TILEURL = @"https://api.maptiler.com/maps/hybrid/{zoom}/{x}/{y}.jpg?key=ZnCLN1UxbkcF74yFeryt";
+        //const string TILEURL = @"https://api.maptiler.com/tiles/satellite-v2/{zoom}/{x}/{y}.jpg?key=ZnCLN1UxbkcF74yFeryt";
         #endregion
 
         #region Locals
@@ -31,6 +37,9 @@ ESC to go back to Edit mode";
         bool deleting = false;
         int _shapeidx = -1;
         #endregion
+        static SerialPort _serialPort = new SerialPort();
+        Thread readThread;
+        static bool _continue;
 
         #region Initialization
         public Form1()
@@ -62,6 +71,15 @@ ESC to go back to Edit mode";
             map.AfterShapeEdit += Map_AfterShapeEdit;
             map.BeforeShapeEdit += Map_BeforeShapeEdit;
             //map.ShapeIdentified += Map_ShapeIdentified;
+
+            string[] ports = SerialPort.GetPortNames();
+            foreach (string port in ports)
+                cbPort.Items.Add(port);
+            if (cbPort.Items.Count > 0)
+                cbPort.SelectedIndex = 0;
+
+            _serialPort.ReadTimeout = 500;
+            _serialPort.WriteTimeout = 500;
         }
 
         public void InitMap()
@@ -206,7 +224,7 @@ ESC to go back to Edit mode";
                         sf.EditDeleteShape(e.shapeIndex);
                         map.ShapeEditor.SaveChanges();
                     }
-                    
+
                     break;
                 case tkUndoOperation.uoRemoveShape:
                     // removing associated label
@@ -465,5 +483,75 @@ ESC to go back to Edit mode";
             map.ShapeEditor.SaveChanges();
         }
         #endregion
+
+        private void btnGPS_Click(object sender, EventArgs e)
+        {
+            if (_serialPort.IsOpen)
+            {
+                _continue = false;
+                readThread.Join();
+                _serialPort.Close();
+                btnGPS.Text = "Link GPS";
+                lblGPS.Text = "GPS not linked";
+            }
+            else
+            {
+                if (cbPort.Items.Count == 0)
+                {
+                    MessageBox.Show("No available port");
+                    return;
+                }
+                _serialPort.PortName = cbPort.Text;
+                //_serialPort.BaudRate = 115200;
+                _serialPort.BaudRate = 4800;
+                _serialPort.DataBits = 8;
+                _serialPort.Parity = Parity.None;
+                _serialPort.StopBits = StopBits.One;
+                _serialPort.Handshake = Handshake.None;
+
+                try
+                {
+                    _continue = true;
+                    _serialPort.Open();
+
+                    if (_serialPort.IsOpen)
+                    {
+                        btnGPS.Text = "Disconnect GPS";
+                        lblGPS.Text = "GPS linked";
+                        readThread = new Thread(ReadGPSData);
+                        readThread.Start();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            }
+        }
+
+        public static void ReadGPSData()
+        {            
+            while (_continue)
+            {
+                try
+                {
+                    if (_serialPort.BytesToRead > 0)
+                    {
+                        string message = _serialPort.ReadLine();
+                        Debug.WriteLine(message);                        
+                    }
+                }
+                catch (TimeoutException) { }
+            }
+        }
+
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            if (readThread!=null && readThread.IsAlive)
+            {
+                _continue = false;
+                readThread.Join();
+            }
+        }
     }
 }
