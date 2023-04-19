@@ -38,7 +38,7 @@ ESC to go back to Edit mode";
         int _shapeidx = -1;
         #endregion
         static SerialPort _serialPort = new SerialPort();
-        Thread readThread;
+        Thread readThread = new Thread(ReadGPSData);
         static bool _continue;
 
         #region Initialization
@@ -71,6 +71,7 @@ ESC to go back to Edit mode";
             map.AfterShapeEdit += Map_AfterShapeEdit;
             map.BeforeShapeEdit += Map_BeforeShapeEdit;
             //map.ShapeIdentified += Map_ShapeIdentified;
+            map.DblClick += Map_DblClick;
 
             string[] ports = SerialPort.GetPortNames();
             foreach (string port in ports)
@@ -268,6 +269,11 @@ ESC to go back to Edit mode";
         private void Map_ChooseLayer(object sender, _DMapEvents_ChooseLayerEvent e)
         {
             e.layerHandle = MarkerLayer;
+        }
+
+        private void Map_DblClick(object sender, EventArgs e)
+        {
+            btnAddMarker_Click(sender, e);
         }
         #endregion
 
@@ -518,7 +524,7 @@ ESC to go back to Edit mode";
                     {
                         btnGPS.Text = "Disconnect GPS";
                         lblGPS.Text = "GPS linked";
-                        readThread = new Thread(ReadGPSData);
+                        //readThread = new Thread(ReadGPSData);
                         readThread.Start();
                     }
                 }

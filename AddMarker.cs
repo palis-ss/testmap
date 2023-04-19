@@ -27,7 +27,7 @@ namespace testmap
             btnAddCancel.DialogResult = DialogResult.Cancel;
             AcceptButton = btnAddAccept;
             CancelButton = btnAddCancel;
-            
+
             cbIcon2.Items.Add("car");
             cbIcon2.Items.Add("house");
             if (cbIcon2.Items.Count > 0)
